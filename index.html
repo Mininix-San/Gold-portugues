@@ -69,25 +69,6 @@
         let goldRateD = 5.60;
         let listaOuroGlobal = [];
 
-        function saveState() {
-            const state = {
-                goldRateR,
-                goldRateD,
-                quantidadeOuro: document.getElementById('quantidadeOuro').value
-            };
-            localStorage.setItem('appState', JSON.stringify(state));
-        }
-
-        function loadState() {
-            const state = JSON.parse(localStorage.getItem('appState'));
-            if (state) {
-                goldRateR = state.goldRateR;
-                goldRateD = state.goldRateD;
-                document.getElementById('quantidadeOuro').value = state.quantidadeOuro;
-                updateOuroCalculations();
-            }
-        }
-
         function updateOuroCalculations() {
             const quantidade = parseInt(document.getElementById('quantidadeOuro').value) || 0;
             const totalR = (quantidade / 1000) * goldRateR;
@@ -97,7 +78,6 @@
             document.getElementById('totalROuro').innerText = totalR.toFixed(2);
             document.getElementById('totalDOuro').innerText = totalD.toFixed(2);
             document.getElementById('quantidadeAnunciada').innerText = listaOuroGlobal.join(', ');
-            saveState();
         }
 
         function calcularListaOuro(quantidade) {
@@ -141,7 +121,10 @@
                 .catch(err => alert('Erro ao copiar texto: ', err));
         }
 
-        window.onload = loadState;
+        window.onload = function() {
+            document.getElementById('quantidadeOuro').value = 0;
+            updateOuroCalculations();
+        }
     </script>
 </head>
 <body>
