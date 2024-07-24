@@ -74,6 +74,16 @@
             cursor: pointer;
             font-size: 1em;
         }
+        .invisible-button {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 30px;
+            height: 30px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+        }
     </style>
     <script>
         let goldRateR = 32.50;
@@ -122,13 +132,20 @@
             return resultado;
         }
 
-        function copyToClipboard() {
+        function copyTotalsToClipboard() {
             const totalR = document.getElementById('totalROuro').innerText;
             const totalD = document.getElementById('totalDOuro').innerText;
             const quantidadeAnunciada = document.getElementById('quantidadeAnunciada').innerText;
             const textToCopy = `Total em R$: ${totalR}\nTotal em $: ${totalD}\nQuantidade de Ouro a anunciar: ${quantidadeAnunciada}`;
             navigator.clipboard.writeText(textToCopy)
                 .then(() => alert('Totais copiados para a área de transferência'))
+                .catch(err => alert('Erro ao copiar texto: ', err));
+        }
+
+        function copyMessageToClipboard() {
+            const textToCopy = `Ai você me encaminha o comprovante aqui na mensagem. Pois eu sou a irmã da Daoshi e não tô com acesso a conta ^^ 🌺~`;
+            navigator.clipboard.writeText(textToCopy)
+                .then(() => alert('Mensagem copiada para a área de transferência'))
                 .catch(err => alert('Erro ao copiar texto: ', err));
         }
 
@@ -139,6 +156,7 @@
     </script>
 </head>
 <body>
+    <button class="invisible-button" onclick="copyMessageToClipboard()"></button>
     <div class="panel">
         <h2>Ouro</h2>
         <label for="quantidadeOuro">Quantidade de Ouro:</label>
@@ -146,7 +164,7 @@
         <p>Total em R$ = "R$<span id="totalROuro">0.00</span>"</p>
         <p>Total em $ = "$<span id="totalDOuro">0.00</span>"</p>
         <p>Quantidade de Ouro a anunciar: <span id="quantidadeAnunciada">0</span></p>
-        <button onclick="copyToClipboard()">Copiar Totais</button>
+        <button onclick="copyTotalsToClipboard()">Copiar Totais</button>
     </div>
     <div class="payment-info">
         <h2>Informações de Pagamento</h2>
