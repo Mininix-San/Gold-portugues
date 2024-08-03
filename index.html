@@ -47,7 +47,7 @@
             text-align: center;
             color: #FF6EC7;
         }
-        input[type="number"] {
+        input[type="number"], input[type="text"] {
             width: calc(100% - 22px);
             padding: 10px;
             margin: 5px 0;
@@ -86,12 +86,18 @@
         }
     </style>
     <script>
-        let goldRateR = 33.00;
+        let goldRateBase = 33.00;
         let goldRateD = 5.60;
         let listaOuroGlobal = [];
 
         function updateOuroCalculations() {
             const quantidade = parseInt(document.getElementById('quantidadeOuro').value) || 0;
+            let goldRateR = goldRateBase;
+
+            if (quantidade >= 10000) {
+                goldRateR = 32.50
+            }
+
             const totalR = (quantidade / 1000) * goldRateR;
             const totalD = (quantidade / 1000) * goldRateD;
             listaOuroGlobal = calcularListaOuro(quantidade);
@@ -136,7 +142,8 @@
             const totalR = document.getElementById('totalROuro').innerText;
             const totalD = document.getElementById('totalDOuro').innerText;
             const quantidadeAnunciada = document.getElementById('quantidadeAnunciada').innerText;
-            const textToCopy = `Total em R$: ${totalR}\nTotal em $: ${totalD}\nQuantidade de Ouro a anunciar: ${quantidadeAnunciada}`;
+            const servidor = document.getElementById('servidor').value;
+            const textToCopy = `Servidor: ${servidor}\nTotal em R$: ${totalR}\nTotal em $: ${totalD}\nQuantidade de Ouro a anunciar: ${quantidadeAnunciada}`;
             navigator.clipboard.writeText(textToCopy)
                 .then(() => alert('Totais copiados para a área de transferência'))
                 .catch(err => alert('Erro ao copiar texto: ', err));
@@ -161,6 +168,8 @@
         <h2>Ouro</h2>
         <label for="quantidadeOuro">Quantidade de Ouro:</label>
         <input type="number" id="quantidadeOuro" value="0" oninput="updateOuroCalculations()"><br>
+        <label for="servidor">Servidor:</label>
+        <input type="text" id="servidor" placeholder="Insira o servidor"><br>
         <p>Total em R$ = "R$<span id="totalROuro">0.00</span>"</p>
         <p>Total em $ = "$<span id="totalDOuro">0.00</span>"</p>
         <p>Quantidade de Ouro a anunciar: <span id="quantidadeAnunciada">0</span></p>
