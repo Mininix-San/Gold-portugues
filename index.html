@@ -109,19 +109,19 @@
         }
 
         function calcularListaOuro(quantidade) {
-            const quantidadeAnunciada = Math.floor(quantidade + (quantidade * 5.3 / 100));
-            if (quantidade <= 2500) {
-                return [quantidadeAnunciada];
-            } else if (quantidade <= 5000) {
-                return dividirEmPartes(quantidadeAnunciada, 2);
-            } else if (quantidade <= 7500) {
-                return dividirEmPartes(quantidadeAnunciada, 3);
-            } else if (quantidade <= 10000) {
-                return dividirEmPartes(quantidadeAnunciada, 4);
-            } else {
-                return [quantidadeAnunciada];
-            }
-        }
+    const quantidadeAnunciada = Math.floor(quantidade + (quantidade * 5.3 / 100));
+    const divisao = Math.ceil(quantidade / 2500); // A cada 2500, adicionar uma parte na divisão
+
+    return dividirEmPartes(quantidadeAnunciada, divisao);
+}
+
+function dividirEmPartes(quantidade, partes) {
+    const parte = Math.floor(quantidade / partes);
+    const resultado = Array(partes).fill(parte);
+    resultado[partes - 1] += quantidade - (parte * partes); // Corrigir eventual sobra
+    return resultado;
+}
+
 
         function dividirEmPartes(total, partes) {
             const min = Math.floor(total / (partes + 1));
