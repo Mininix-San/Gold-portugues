@@ -110,34 +110,43 @@
 
         function calcularListaOuro(quantidade) {
     const quantidadeAnunciada = Math.floor(quantidade + (quantidade * 5.3 / 100));
-    const divisao = Math.ceil(quantidade / 2500); // A cada 2500, adicionar uma parte na divisão
+    let divisao;
 
-    return dividirEmPartes(quantidadeAnunciada, divisao);
+    if (quantidade >= 20000) {
+        divisao = Math.ceil(quantidade / 5000); // A cada 5000, adicionar uma parte na divisão
+    } else {
+        divisao = Math.ceil(quantidade / 2500); // A cada 2500, adicionar uma parte na divisão
+    }
+
+    return dividirEmPartes(quantidadeAnunciada, divisao, quantidade);
 }
 
-function dividirEmPartes(quantidade, partes) {
-    const parte = Math.floor(quantidade / partes);
-    const resultado = Array(partes).fill(parte);
-    resultado[partes - 1] += quantidade - (parte * partes); // Corrigir eventual sobra
+function dividirEmPartes(total, partes, quantidade) {
+    let min, max;
+
+    if (quantidade >= 20000) {
+        // Definir intervalo entre 5000 e 6000
+        min = 5000;
+        max = 6000;
+    } else {
+        // Definir intervalo entre 2500 e 3000
+        min = 2500;
+        max = 3000;
+    }
+
+    let resultado = [];
+    let soma = 0;
+
+    for (let i = 0; i < partes - 1; i++) {
+        const valor = Math.floor(Math.random() * (max - min + 1)) + min;
+        resultado.push(valor);
+        soma += valor;
+    }
+
+    resultado.push(total - soma); // Adiciona a última parte, garantindo que a soma seja igual ao total
     return resultado;
 }
 
-
-        function dividirEmPartes(total, partes) {
-            const min = Math.floor(total / (partes + 1));
-            const max = Math.ceil(total / partes);
-            let resultado = [];
-            let soma = 0;
-
-            for (let i = 0; i < partes - 1; i++) {
-                const valor = Math.floor(Math.random() * (max - min + 1)) + min;
-                resultado.push(valor);
-                soma += valor;
-            }
-
-            resultado.push(total - soma);
-            return resultado;
-        }
 
         function copyTotalsToClipboard() {
             const totalR = document.getElementById('totalROuro').innerText;
