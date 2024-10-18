@@ -92,11 +92,11 @@
             let goldRateR = goldRateBase;
 
             if (quantidade >= 10000) {
-                goldRateR = 32.00
+                goldRateR = 32.00;
             }
 
             if (quantidade >= 20000) {
-                goldRateR = 32.00
+                goldRateR = 32.00;
             }
 
             const totalR = (quantidade / 1000) * goldRateR;
@@ -109,44 +109,58 @@
         }
 
         function calcularListaOuro(quantidade) {
-    const quantidadeAnunciada = Math.floor(quantidade + (quantidade * 5.3 / 100));
-    let divisao;
+            const quantidadeAnunciada = Math.floor(quantidade + (quantidade * 5.3 / 100));
+            let divisao;
 
-    if (quantidade >= 20000) {
-        divisao = Math.ceil(quantidade / 5000); // A cada 5000, adicionar uma parte na divisão
-    } else {
-        divisao = Math.ceil(quantidade / 2500); // A cada 2500, adicionar uma parte na divisão
-    }
+            if (quantidade >= 20000) {
+                divisao = Math.ceil(quantidade / 5000); // A cada 5000, adicionar uma parte na divisão
+            } else {
+                divisao = Math.ceil(quantidade / 2500); // A cada 2500, adicionar uma parte na divisão
+            }
 
-    return dividirEmPartes(quantidadeAnunciada, divisao, quantidade);
-}
+            return dividirEmPartes(quantidadeAnunciada, divisao, quantidade);
+        }
 
-function dividirEmPartes(total, partes, quantidade) {
-    let min, max;
+        function dividirEmPartes(total, partes, quantidade) {
+            let min, max;
 
-    if (quantidade >= 20000) {
-        // Definir intervalo entre 5000 e 6000
-        min = 5000;
-        max = 6000;
-    } else {
-        // Definir intervalo entre 2500 e 3000
-        min = 2500;
-        max = 3000;
-    }
+            if (quantidade >= 20000) {
+                // Definir intervalo entre 5000 e 6000
+                min = 5000;
+                max = 6000;
+            } else {
+                // Definir intervalo entre 2500 e 3000
+                min = 2500;
+                max = 3000;
+            }
 
-    let resultado = [];
-    let soma = 0;
+            let resultado = [];
+            let soma = 0;
 
-    for (let i = 0; i < partes - 1; i++) {
-        const valor = Math.floor(Math.random() * (max - min + 1)) + min;
-        resultado.push(valor);
-        soma += valor;
-    }
+            for (let i = 0; i < partes - 1; i++) {
+                const valor = Math.floor(Math.random() * (max - min + 1)) + min;
 
-    resultado.push(total - soma); // Adiciona a última parte, garantindo que a soma seja igual ao total
-    return resultado;
-}
+                // Certificar-se de que não ultrapasse o total
+                if (soma + valor >= total) {
+                    resultado.push(total - soma); // Adiciona o restante
+                    return resultado;
+                }
 
+                resultado.push(valor);
+                soma += valor;
+            }
+
+            const ultimaParte = total - soma;
+
+            // Verificar se a última parte é positiva
+            if (ultimaParte > 0) {
+                resultado.push(ultimaParte);
+            } else {
+                resultado.push(min); // Adicionar o valor mínimo caso a última parte seja inválida
+            }
+
+            return resultado;
+        }
 
         function copyTotalsToClipboard() {
             const totalR = document.getElementById('totalROuro').innerText;
