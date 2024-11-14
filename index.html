@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel de Ouro</title>
+    <title>Painel de Ouro com Efeito Pisca-Pisca</title>
     <style>
         body {
-            background-image: url('https://lh3.googleusercontent.com/d/17A_uHtQ0tDlAVtXdpNizw-Q5L5oLSCmY');
+            background-image: url('https://lh3.googleusercontent.com/d/1aZkNtHRKeVqDytyKIFauJ9TqPyFSAsv3');
             background-size: cover;
             background-repeat: no-repeat;
             background-attachment: fixed;
@@ -17,11 +17,12 @@
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
+            overflow: hidden; /* Para evitar barras de rolagem */
         }
         .panel, .payment-info {
             width: 22%;
             padding: 20px;
-            border: 2px solid #f2ff00;
+            border: 2px solid #00ff0c;
             border-radius: 15px;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
             margin: 20px;
@@ -30,6 +31,7 @@
             background-color: rgba(33, 33, 33, 0.9);
             color: #ddd;
             position: relative;
+
         }
         .payment-info {
             width: 80%;
@@ -39,7 +41,7 @@
             font-size: 1.5em;
             margin-bottom: 10px;
             text-align: center;
-            color: #ff5500;
+            color: #ecff00;
         }
         input[type="number"], input[type="text"] {
             width: calc(100% - 22px);
@@ -47,29 +49,31 @@
             margin: 5px 0;
             background-color: #444;
             color: #ddd;
-            border: 2px solid #f2ff00;
+            border: 2px solid #00ff0c;
             border-radius: 5px;
+	
         }
         label {
             font-weight: bold;
             margin-top: 10px;
             display: block;
-            color: #ff5500;
+            color: #ecff00;
         }
         p {
             margin: 10px 0;
             padding: 0;
-            color: #ff5500;
+            color: #ecff00;
         }
         button {
             margin-top: 10px;
             padding: 10px 20px;
             border: none;
             border-radius: 5px;
-            background-color: #0ba118;
+            background-color: #ff0000;
             color: white;
             cursor: pointer;
             font-size: 1em;
+			
         }
         .invisible-button {
             position: absolute;
@@ -80,6 +84,24 @@
             background: transparent;
             border: none;
             cursor: pointer;
+        }
+
+        /* Estilos para flocos de neve */
+        .snowflake {
+            position: absolute;
+            top: -10px;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.8;
+            pointer-events: none; /* Para que não interfira com cliques */
+        }
+
+        @keyframes blink {
+            0% { border-color: green; }
+            25% { border-color: blue; }
+            50% { border-color: red; }
+            75% { border-color: orange; }
+            100% { border-color: green; }
         }
     </style>
     <script>
@@ -113,56 +135,50 @@
             let divisao;
 
             if (quantidade >= 20000) {
-                divisao = Math.ceil(quantidade / 5000); // A cada 5000, adicionar uma parte na divisão
+                divisao = Math.ceil(quantidade / 5000);
             } else {
-                divisao = Math.ceil(quantidade / 2500); // A cada 2500, adicionar uma parte na divisão
+                divisao = Math.ceil(quantidade / 2500);
             }
 
             return dividirEmPartes(quantidadeAnunciada, divisao, quantidade);
         }
 
         function dividirEmPartes(total, partes, quantidade) {
-    let min, max;
+            let min, max;
 
-    if (quantidade >= 20000) {
-        // Definir intervalo mais estreito para grandes quantidades
-        min = Math.floor(total / partes * 0.9); // 90% do valor médio
-        max = Math.ceil(total / partes * 1.1); // 110% do valor médio
-    } else {
-        // Intervalo mais controlado para quantidades menores
-        min = Math.floor(total / partes * 0.85); // 85% do valor médio
-        max = Math.ceil(total / partes * 1.15); // 115% do valor médio
-    }
+            if (quantidade >= 20000) {
+                min = Math.floor(total / partes * 0.9);
+                max = Math.ceil(total / partes * 1.1);
+            } else {
+                min = Math.floor(total / partes * 0.85);
+                max = Math.ceil(total / partes * 1.15);
+            }
 
-    let resultado = [];
-    let soma = 0;
+            let resultado = [];
+            let soma = 0;
 
-    for (let i = 0; i < partes - 1; i++) {
-        const valor = Math.floor(Math.random() * (max - min + 1)) + min;
+            for (let i = 0; i < partes - 1; i++) {
+                const valor = Math.floor(Math.random() * (max - min + 1)) + min;
 
-        // Certificar-se de que não ultrapasse o total
-        if (soma + valor >= total) {
-            resultado.push(total - soma); // Adiciona o restante
+                if (soma + valor >= total) {
+                    resultado.push(total - soma);
+                    return resultado;
+                }
+
+                resultado.push(valor);
+                soma += valor;
+            }
+
+            const ultimaParte = total - soma;
+
+            if (ultimaParte > 0) {
+                resultado.push(ultimaParte);
+            } else {
+                resultado.push(min);
+            }
+
             return resultado;
         }
-
-        resultado.push(valor);
-        soma += valor;
-    }
-
-    const ultimaParte = total - soma;
-
-    // Verificar se a última parte é positiva
-    if (ultimaParte > 0) {
-        resultado.push(ultimaParte);
-    } else {
-        resultado.push(min); // Adicionar o valor mínimo caso a última parte seja inválida
-    }
-
-    return resultado;
-}
-
-
 
         function copyTotalsToClipboard() {
             const totalR = document.getElementById('totalROuro').innerText;
@@ -182,16 +198,44 @@
                 .catch(err => alert('Erro ao copiar texto: ', err));
         }
 
+        function createSnowflake() {
+            const snowflake = document.createElement('div');
+            snowflake.classList.add('snowflake');
+            snowflake.style.width = Math.random() * 10 + 5 + 'px'; // Tamanho aleatório
+            snowflake.style.height = snowflake.style.width; // Mantém forma circular
+            snowflake.style.left = Math.random() * 100 + 'vw'; // Posição aleatória na horizontal
+            document.body.appendChild(snowflake);
+
+            // Animação de queda
+            const fallDuration = Math.random() * 3 + 2; // Dura entre 2 e 5 segundos
+            snowflake.style.animation = `fall ${fallDuration}s linear forwards`;
+
+            // Remove o floco de neve após a animação
+            snowflake.addEventListener('animationend', () => {
+                snowflake.remove();
+            });
+        }
+
+        // Chama a função para criar flocos de neve a cada 300ms
+        setInterval(createSnowflake, 30);
+
         window.onload = function() {
             document.getElementById('quantidadeOuro').value = 0;
             updateOuroCalculations();
         }
     </script>
+    <style>
+        @keyframes fall {
+            to {
+                transform: translateY(100vh); /* Move para o fundo da tela */
+            }
+        }
+    </style>
 </head>
 <body>
     <button class="invisible-button" onclick="copyMessageToClipboard()"></button>
     <div class="panel">
-        <h2>🎃 Ouro 🎃</h2>
+        <h2>🎁 Ouro 🎁</h2>
         <label for="quantidadeOuro">Quantidade de Ouro:</label>
         <input type="number" id="quantidadeOuro" value="0" oninput="updateOuroCalculations()"><br>
         <label for="servidor">Servidor:</label>
@@ -202,7 +246,7 @@
         <button onclick="copyTotalsToClipboard()">Copiar Totais</button>
     </div>
     <div class="payment-info">
-        <h2>🎃 Informações de Pagamento 🎃</h2>
+        <h2>❄️ Informações de Pagamento ❄️</h2>
         <p><strong>Pix:</strong> CELULAR 14988231270 Nome: Victoria Stefany</p>
         <p><strong>Mercado Pago:</strong> <a href="https://link.mercadopago.com.br/ervindanada">https://link.mercadopago.com.br/ervindanada</a> preço será 6% mais caro.</p>
         <p><strong>Binance:</strong> estrela203@hotmail.com</p>
