@@ -1,257 +1,272 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Loja Daoshi Gold</title>
-	<link rel="icon" type="image/png" href="https://lh3.googleusercontent.com/d/1lLnjQ3NYt6Bd6WapJ2p0EjzfQJIbB-es">
-    <style>
-        body {
-            background-image: url('https://lh3.googleusercontent.com/d/1wdPn1l98dwN2wBfCGBeAC0MKtNed1in2');
-            background-size: cover;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-            font-family: 'Comic Sans MS', 'Comic Sans', cursive;
-            color: #ddd;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            overflow: hidden; /* Para evitar barras de rolagem */
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loja Daoshi Gold</title>
+  <link rel="icon" type="image/png" href="https://lh3.googleusercontent.com/d/1lLnjQ3NYt6Bd6WapJ2p0EjzfQJIbB-es">
+  <style>
+    body {
+      background-image: url('https://lh3.googleusercontent.com/d/1wdPn1l98dwN2wBfCGBeAC0MKtNed1in2');
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      font-family: 'Comic Sans MS', 'Comic Sans', cursive;
+      color: #ddd;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      overflow: hidden; /* Para evitar barras de rolagem */
+    }
+    .panel, .payment-info {
+      width: 22%;
+      padding: 20px;
+      border: 2px solid #00ff0c;
+      border-radius: 15px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+      margin: 20px;
+      display: inline-block;
+      vertical-align: top;
+      background-color: rgba(33, 33, 33, 0.9);
+      color: #ddd;
+      position: relative;
+    }
+    .payment-info {
+      width: 80%;
+      margin: 20px;
+    }
+    h2 {
+      font-size: 1.5em;
+      margin-bottom: 10px;
+      text-align: center;
+      color: #ecff00;
+    }
+    input[type="number"], input[type="text"] {
+      width: calc(100% - 22px);
+      padding: 10px;
+      margin: 5px 0;
+      background-color: #444;
+      color: #ddd;
+      border: 2px solid #00ff0c;
+      border-radius: 5px;
+    }
+    label {
+      font-weight: bold;
+      margin-top: 10px;
+      display: block;
+      color: #ecff00;
+    }
+    p {
+      margin: 10px 0;
+      padding: 0;
+      color: #ecff00;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      background-color: #ff0000;
+      color: white;
+      cursor: pointer;
+      font-size: 1em;
+    }
+    .invisible-button {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 30px;
+      height: 30px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+    }
+    /* Mini painel de taxas de gold */
+    .gold-values-panel {
+      position: absolute;
+      right: -220px;
+      top: 10px;
+      width: 200px;
+      padding: 10px;
+      border: 2px solid gold;
+      border-radius: 10px;
+      background-color: rgba(33, 33, 33, 0.9);
+      color: #ecff00;
+      text-align: center;
+    }
+    /* Estilos para flores */
+    .flower {
+      position: absolute;
+      top: -50px;
+      font-size: 24px;
+      pointer-events: none;
+      animation: fall linear infinite, fadeOut linear infinite;
+    }
+    @keyframes fall {
+      from {
+        transform: translateY(0px) rotate(0deg);
+      }
+      to {
+        transform: translateY(100vh) rotate(360deg);
+      }
+    }
+    @keyframes fadeOut {
+      from {
+        opacity: 1;
+      }
+      to {
+        opacity: 0;
+      }
+    }
+  </style>
+  <script>
+    let goldRateBase = 29.00;
+    let goldRateD = 4.80;
+    let listaOuroGlobal = [];
+
+    function updateOuroCalculations() {
+      const quantidade = parseInt(document.getElementById('quantidadeOuro').value) || 0;
+      let goldRateR = goldRateBase;
+
+      if (quantidade >= 10000) {
+        goldRateR = 28.00;
+      }
+      if (quantidade >= 20000) {
+        goldRateR = 27.00;
+      }
+
+      const totalR = (quantidade / 1000) * goldRateR;
+      const totalD = (quantidade / 1000) * goldRateD;
+      listaOuroGlobal = calcularListaOuro(quantidade);
+
+      document.getElementById('totalROuro').innerText = totalR.toFixed(2);
+      document.getElementById('totalDOuro').innerText = totalD.toFixed(2);
+      document.getElementById('quantidadeAnunciada').innerText = listaOuroGlobal.join(', ');
+
+      // Atualiza o mini painel de taxas de gold
+      document.getElementById('rate10k').innerText = goldRateBase.toFixed(2);
+      document.getElementById('rate10kAbove').innerText = "28.00";
+      document.getElementById('rate20kAbove').innerText = "27.00";
+    }
+
+    function calcularListaOuro(quantidade) {
+      const quantidadeAnunciada = Math.floor(quantidade + (quantidade * 5.3 / 100));
+      let divisao;
+
+      if (quantidade >= 20000) {
+        divisao = Math.ceil(quantidade / 5000);
+      } else {
+        divisao = Math.ceil(quantidade / 2500);
+      }
+
+      return dividirEmPartes(quantidadeAnunciada, divisao, quantidade);
+    }
+
+    function dividirEmPartes(total, partes, quantidade) {
+      let min, max;
+
+      if (quantidade >= 20000) {
+        min = Math.floor(total / partes * 0.9);
+        max = Math.ceil(total / partes * 1.1);
+      } else {
+        min = Math.floor(total / partes * 0.85);
+        max = Math.ceil(total / partes * 1.15);
+      }
+
+      let resultado = [];
+      let soma = 0;
+
+      for (let i = 0; i < partes - 1; i++) {
+        const valor = Math.floor(Math.random() * (max - min + 1)) + min;
+
+        if (soma + valor >= total) {
+          resultado.push(total - soma);
+          return resultado;
         }
-        .panel, .payment-info {
-            width: 22%;
-            padding: 20px;
-            border: 2px solid #00ff0c;
-            border-radius: 15px;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
-            margin: 20px;
-            display: inline-block;
-            vertical-align: top;
-            background-color: rgba(33, 33, 33, 0.9);
-            color: #ddd;
-            position: relative;
+        resultado.push(valor);
+        soma += valor;
+      }
 
-        }
-        .payment-info {
-            width: 80%;
-            margin: 20px;
-        }
-        h2 {
-            font-size: 1.5em;
-            margin-bottom: 10px;
-            text-align: center;
-            color: #ecff00;
-        }
-        input[type="number"], input[type="text"] {
-            width: calc(100% - 22px);
-            padding: 10px;
-            margin: 5px 0;
-            background-color: #444;
-            color: #ddd;
-            border: 2px solid #00ff0c;
-            border-radius: 5px;
-	
-        }
-        label {
-            font-weight: bold;
-            margin-top: 10px;
-            display: block;
-            color: #ecff00;
-        }
-        p {
-            margin: 10px 0;
-            padding: 0;
-            color: #ecff00;
-        }
-        button {
-            margin-top: 10px;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            background-color: #ff0000;
-            color: white;
-            cursor: pointer;
-            font-size: 1em;
-			
-        }
-        .invisible-button {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 30px;
-            height: 30px;
-            background: transparent;
-            border: none;
-            cursor: pointer;
-        }
+      const ultimaParte = total - soma;
+      if (ultimaParte > 0) {
+        resultado.push(ultimaParte);
+      } else {
+        resultado.push(min);
+      }
+      return resultado;
+    }
 
-        /* Estilos para flores */
-        .flower {
-            position: absolute;
-            top: -50px;
-            font-size: 24px;
-            pointer-events: none;
-            animation: fall linear infinite, fadeOut linear infinite;
-        }
+    function copyTotalsToClipboard() {
+      const totalR = document.getElementById('totalROuro').innerText;
+      const totalD = document.getElementById('totalDOuro').innerText;
+      const quantidadeAnunciada = document.getElementById('quantidadeAnunciada').innerText;
+      const servidor = document.getElementById('servidor').value;
+      const textToCopy = `Servidor: ${servidor}\nTotal em R$: ${totalR}\nTotal em $: ${totalD}\nQuantidade de Ouro a anunciar: ${quantidadeAnunciada}`;
+      navigator.clipboard.writeText(textToCopy)
+        .then(() => alert('Totais copiados para a área de transferência'))
+        .catch(err => alert('Erro ao copiar texto: ', err));
+    }
 
-        @keyframes fall {
-            from {
-                transform: translateY(0px) rotate(0deg);
-            }
-            to {
-                transform: translateY(100vh) rotate(360deg);
-            }
-        }
+    function copyMessageToClipboard() {
+      const textToCopy = `Ai você me encaminha o comprovante aqui na mensagem. Pois eu sou a irmã da Daoshi e não tô com acesso a conta ^^ 🌺~`;
+      navigator.clipboard.writeText(textToCopy)
+        .then(() => alert('Mensagem copiada para a área de transferência'))
+        .catch(err => alert('Erro ao copiar texto: ', err));
+    }
 
-        @keyframes fadeOut {
-            from {
-                opacity: 1;
-            }
-            to {
-                opacity: 0;
-            }
-        }
-    </style>
-    <script>
-        let goldRateBase = 29.00;
-        let goldRateD = 4.80;
-        let listaOuroGlobal = [];
+    function createFlower() {
+      const flowers = ['🌸', '🌺', '🌻', '🌼', '💐'];
+      const flower = document.createElement('div');
+      flower.classList.add('flower');
+      flower.innerText = flowers[Math.floor(Math.random() * flowers.length)];
+      flower.style.left = Math.random() * 100 + 'vw';
+      flower.style.transform = `rotate(${Math.random() * 360}deg)`;
+      
+      let duration = Math.random() * 5 + 3; // Tempo de queda entre 3s e 8s
+      flower.style.animationDuration = duration + 's, ' + duration + 's';
 
-        function updateOuroCalculations() {
-            const quantidade = parseInt(document.getElementById('quantidadeOuro').value) || 0;
-            let goldRateR = goldRateBase;
+      document.body.appendChild(flower);
+      setTimeout(() => flower.remove(), duration * 1000);
+    }
 
-            if (quantidade >= 10000) {
-                goldRateR = 28.00;
-            }
+    setInterval(createFlower, 1000); // Menos flores caindo por segundo
 
-            if (quantidade >= 20000) {
-                goldRateR = 27.00;
-            }
-
-            const totalR = (quantidade / 1000) * goldRateR;
-            const totalD = (quantidade / 1000) * goldRateD;
-            listaOuroGlobal = calcularListaOuro(quantidade);
-
-            document.getElementById('totalROuro').innerText = totalR.toFixed(2);
-            document.getElementById('totalDOuro').innerText = totalD.toFixed(2);
-            document.getElementById('quantidadeAnunciada').innerText = listaOuroGlobal.join(', ');
-        }
-
-        function calcularListaOuro(quantidade) {
-            const quantidadeAnunciada = Math.floor(quantidade + (quantidade * 5.3 / 100));
-            let divisao;
-
-            if (quantidade >= 20000) {
-                divisao = Math.ceil(quantidade / 5000);
-            } else {
-                divisao = Math.ceil(quantidade / 2500);
-            }
-
-            return dividirEmPartes(quantidadeAnunciada, divisao, quantidade);
-        }
-
-        function dividirEmPartes(total, partes, quantidade) {
-            let min, max;
-
-            if (quantidade >= 20000) {
-                min = Math.floor(total / partes * 0.9);
-                max = Math.ceil(total / partes * 1.1);
-            } else {
-                min = Math.floor(total / partes * 0.85);
-                max = Math.ceil(total / partes * 1.15);
-            }
-
-            let resultado = [];
-            let soma = 0;
-
-            for (let i = 0; i < partes - 1; i++) {
-                const valor = Math.floor(Math.random() * (max - min + 1)) + min;
-
-                if (soma + valor >= total) {
-                    resultado.push(total - soma);
-                    return resultado;
-                }
-
-                resultado.push(valor);
-                soma += valor;
-            }
-
-            const ultimaParte = total - soma;
-
-            if (ultimaParte > 0) {
-                resultado.push(ultimaParte);
-            } else {
-                resultado.push(min);
-            }
-
-            return resultado;
-        }
-
-        function copyTotalsToClipboard() {
-            const totalR = document.getElementById('totalROuro').innerText;
-            const totalD = document.getElementById('totalDOuro').innerText;
-            const quantidadeAnunciada = document.getElementById('quantidadeAnunciada').innerText;
-            const servidor = document.getElementById('servidor').value;
-            const textToCopy = `Servidor: ${servidor}\nTotal em R$: ${totalR}\nTotal em $: ${totalD}\nQuantidade de Ouro a anunciar: ${quantidadeAnunciada}`;
-            navigator.clipboard.writeText(textToCopy)
-                .then(() => alert('Totais copiados para a área de transferência'))
-                .catch(err => alert('Erro ao copiar texto: ', err));
-        }
-
-        function copyMessageToClipboard() {
-            const textToCopy = `Ai você me encaminha o comprovante aqui na mensagem. Pois eu sou a irmã da Daoshi e não tô com acesso a conta ^^ 🌺~`;
-            navigator.clipboard.writeText(textToCopy)
-                .then(() => alert('Mensagem copiada para a área de transferência'))
-                .catch(err => alert('Erro ao copiar texto: ', err));
-        }
-
-        function createFlower() {
-            const flowers = ['🌸', '🌺', '🌻', '🌼', '💐'];
-            const flower = document.createElement('div');
-            flower.classList.add('flower');
-            flower.innerText = flowers[Math.floor(Math.random() * flowers.length)];
-            flower.style.left = Math.random() * 100 + 'vw';
-			flower.style.transform = `rotate(${Math.random() * 360}deg)`;
-            
-            let duration = Math.random() * 5 + 3; // Tempo de queda entre 3s e 8s
-            flower.style.animationDuration = duration + 's, ' + duration + 's';
-
-            document.body.appendChild(flower);
-
-            setTimeout(() => flower.remove(), duration * 1000);
-        }
-
-        setInterval(createFlower, 1000); // Menos flores caindo por segundo
-		
-    </script>
-    <style>
-        @keyframes fall {
-            to {
-                transform: translateY(100vh); /* Move para o fundo da tela */
-            }
-        }
-    </style>
+    // Atualiza as informações imediatamente ao carregar a página
+    window.onload = updateOuroCalculations;
+  </script>
+  <style>
+    @keyframes fall {
+      to {
+        transform: translateY(100vh); /* Move para o fundo da tela */
+      }
+    }
+  </style>
 </head>
 <body>
-    <button class="invisible-button" onclick="copyMessageToClipboard()"></button>
-    <div class="panel">
-        <h2>☀️ Ouro ☀️</h2>
-        <label for="quantidadeOuro">Quantidade de Ouro:</label>
-        <input type="number" id="quantidadeOuro" value="0" oninput="updateOuroCalculations()"><br>
-        <label for="servidor">Servidor:</label>
-        <input type="text" id="servidor" placeholder="Insira o servidor"><br>
-        <p>Total em R$ = "R$<span id="totalROuro">0.00</span>"</p>
-        <p>Total em $ = "$<span id="totalDOuro">0.00</span>"</p>
-        <p>Quantidade de Ouro a anunciar: <span id="quantidadeAnunciada">0</span></p>
-        <button onclick="copyTotalsToClipboard()">Copiar Totais</button>
+  <button class="invisible-button" onclick="copyMessageToClipboard()"></button>
+  <div class="panel">
+    <!-- Mini painel de taxas de gold -->
+    <div class="gold-values-panel">
+      <p>💲 Até 10k: R$<span id="rate10k">29.00</span></p>
+      <p>💲 Acima de 10k: R$<span id="rate10kAbove">28.00</span></p>
+      <p>💲 Acima de 20k: R$<span id="rate20kAbove">27.00</span></p>
     </div>
-    <div class="payment-info">
-        <h2>🌸 Informações de Pagamento 🌸</h2>
-        <p><strong>Pix:</strong> CELULAR 14988231270 Nome: DAOSHI TRADE</p>
-        <p><strong>Binance:</strong> estrela203@hotmail.com</p>
-    </div>
+    <h2>☀️ Ouro ☀️</h2>
+    <label for="quantidadeOuro">Quantidade de Ouro:</label>
+    <input type="number" id="quantidadeOuro" value="0" oninput="updateOuroCalculations()"><br>
+    <label for="servidor">Servidor:</label>
+    <input type="text" id="servidor" placeholder="Insira o servidor"><br>
+    <p>Total em R$ = "R$<span id="totalROuro">0.00</span>"</p>
+    <p>Total em $ = "$<span id="totalDOuro">0.00</span>"</p>
+    <p>Quantidade de Ouro a anunciar: <span id="quantidadeAnunciada">0</span></p>
+    <button onclick="copyTotalsToClipboard()">Copiar Totais</button>
+  </div>
+  <div class="payment-info">
+    <h2>🌸 Informações de Pagamento 🌸</h2>
+    <p><strong>Pix:</strong> CELULAR 14988231270 Nome: DAOSHI TRADE</p>
+    <p><strong>Binance:</strong> estrela203@hotmail.com</p>
+  </div>
 </body>
 </html>
