@@ -86,15 +86,27 @@
     /* Mini painel de taxas de gold */
     .gold-values-panel {
       position: absolute;
-      right: -220px;
+      right: -280px;
       top: 10px;
-      width: 200px;
+      width: 260px;
       padding: 10px;
       border: 2px solid gold;
       border-radius: 10px;
       background-color: rgba(33, 33, 33, 0.9);
       color: #ecff00;
       text-align: center;
+      font-size: 0.9em;
+    }
+    .gold-values-panel p {
+      margin: 5px 0;
+    }
+    .calc-gold {
+      margin-top: 10px;
+      border-top: 1px solid #ecff00;
+      padding-top: 10px;
+    }
+    .calc-gold input[type="number"] {
+      width: calc(100% - 22px);
     }
     /* Estilos para flores */
     .flower {
@@ -149,6 +161,8 @@
       document.getElementById('rate10k').innerText = goldRateBase.toFixed(2);
       document.getElementById('rate10kAbove').innerText = "28.00";
       document.getElementById('rate20kAbove').innerText = "27.00";
+      document.getElementById('rateDollar').innerText = goldRateD.toFixed(2);
+      document.getElementById('goldRateDollar').innerText = goldRateD.toFixed(2);
     }
 
     function calcularListaOuro(quantidade) {
@@ -160,13 +174,11 @@
       } else {
         divisao = Math.ceil(quantidade / 2500);
       }
-
       return dividirEmPartes(quantidadeAnunciada, divisao, quantidade);
     }
 
     function dividirEmPartes(total, partes, quantidade) {
       let min, max;
-
       if (quantidade >= 20000) {
         min = Math.floor(total / partes * 0.9);
         max = Math.ceil(total / partes * 1.1);
@@ -174,13 +186,10 @@
         min = Math.floor(total / partes * 0.85);
         max = Math.ceil(total / partes * 1.15);
       }
-
       let resultado = [];
       let soma = 0;
-
       for (let i = 0; i < partes - 1; i++) {
         const valor = Math.floor(Math.random() * (max - min + 1)) + min;
-
         if (soma + valor >= total) {
           resultado.push(total - soma);
           return resultado;
@@ -188,7 +197,6 @@
         resultado.push(valor);
         soma += valor;
       }
-
       const ultimaParte = total - soma;
       if (ultimaParte > 0) {
         resultado.push(ultimaParte);
@@ -223,18 +231,30 @@
       flower.innerText = flowers[Math.floor(Math.random() * flowers.length)];
       flower.style.left = Math.random() * 100 + 'vw';
       flower.style.transform = `rotate(${Math.random() * 360}deg)`;
-      
       let duration = Math.random() * 5 + 3; // Tempo de queda entre 3s e 8s
       flower.style.animationDuration = duration + 's, ' + duration + 's';
-
       document.body.appendChild(flower);
       setTimeout(() => flower.remove(), duration * 1000);
     }
 
-    setInterval(createFlower, 1000); // Menos flores caindo por segundo
+    // Conversão de valores para Gold em tempo real
+    function calculateGoldFromReal() {
+      const valor = parseFloat(document.getElementById('inputReal').value) || 0;
+      const goldFromReal = (valor * 1000) / goldRateBase;
+      document.getElementById('resultadoReal').innerText = `≈${goldFromReal.toFixed(0)} Gold`;
+    }
+    function calculateGoldFromDollar() {
+      const valor = parseFloat(document.getElementById('inputDollar').value) || 0;
+      const goldFromDollar = (valor * 1000) / goldRateD;
+      document.getElementById('resultadoDollar').innerText = `≈${goldFromDollar.toFixed(0)} Gold`;
+    }
 
     // Atualiza as informações imediatamente ao carregar a página
-    window.onload = updateOuroCalculations;
+    window.onload = function() {
+      updateOuroCalculations();
+      calculateGoldFromReal();
+      calculateGoldFromDollar();
+    };
   </script>
   <style>
     @keyframes fall {
@@ -252,6 +272,17 @@
       <p>💲 Até 10k: R$<span id="rate10k">29.00</span></p>
       <p>💲 Acima de 10k: R$<span id="rate10kAbove">28.00</span></p>
       <p>💲 Acima de 20k: R$<span id="rate20kAbove">27.00</span></p>
+      <p>💲 Valor cada 1k em $ (USDT): $<span id="rateDollar">4.80</span></p>
+      <div class="calc-gold">
+        <label for="inputReal">Converter R$ para Gold:</label>
+        <input type="number" id="inputReal" placeholder="Digite valor em R$" oninput="calculateGoldFromReal()">
+        <p id="resultadoReal"></p>
+      </div>
+      <div class="calc-gold">
+        <label for="inputDollar">Converter USDT para Gold:</label>
+        <input type="number" id="inputDollar" placeholder="Digite valor em USDT" oninput="calculateGoldFromDollar()">
+        <p id="resultadoDollar"></p>
+      </div>
     </div>
     <h2>☀️ Ouro ☀️</h2>
     <label for="quantidadeOuro">Quantidade de Ouro:</label>
