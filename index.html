@@ -1,13 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Loja Daoshi Gold</title>
   <link rel="icon" type="image/png" href="https://lh3.googleusercontent.com/d/1lLnjQ3NYt6Bd6WapJ2p0EjzfQJIbB-es">
   <style>
+    /* Mantém o fundo original do site */
     body {
-      background-image: url('https://lh3.googleusercontent.com/d/1wdPn1l98dwN2wBfCGBeAC0MKtNed1in2');
+      background-image: url('https://lh3.googleusercontent.com/d/13mcKYGZFBEVkIJ2FBCzm1tDKyEXBnuuO');
       background-size: cover;
       background-repeat: no-repeat;
       background-attachment: fixed;
@@ -18,21 +19,25 @@
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      overflow: hidden; /* Para evitar barras de rolagem */
+      overflow: hidden;
     }
+    /* Estilos para os paineis – agora com fundo transparente porém com tonalidade escura */
     .panel, .payment-info {
       width: 22%;
       padding: 20px;
-      border: 2px solid #00ff0c;
-      border-radius: 15px;
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+      border: 2px solid #ccc;
+      border-radius: 10px;
       margin: 20px;
       display: inline-block;
       vertical-align: top;
-      background-color: rgba(33, 33, 33, 0.9);
-      color: #ddd;
+      background-color: rgba(0, 0, 0, 0.7); /* Fundo escuro com transparência */
+      color: #fff; /* Texto em branco */
       position: relative;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+      box-shadow: none;
     }
+    /* Painel de Informações de Pagamento com largura maior */
     .payment-info {
       width: 80%;
       margin: 20px;
@@ -41,27 +46,29 @@
       font-size: 1.5em;
       margin-bottom: 10px;
       text-align: center;
-      color: #ecff00;
+      color: #fff;
     }
     input[type="number"], input[type="text"] {
       width: calc(100% - 22px);
       padding: 10px;
       margin: 5px 0;
-      background-color: #444;
-      color: #ddd;
-      border: 2px solid #00ff0c;
+      background-color: #f0f0f0;
+      color: #000;
+      border: 2px solid #ccc;
       border-radius: 5px;
+      font-family: Arial, sans-serif;
     }
     label {
       font-weight: bold;
       margin-top: 10px;
       display: block;
-      color: #ecff00;
+      color: #fff;
+      font-family: Arial, sans-serif;
     }
     p {
       margin: 10px 0;
       padding: 0;
-      color: #ecff00;
+      color: #fff;
     }
     button {
       margin-top: 10px;
@@ -83,32 +90,33 @@
       border: none;
       cursor: pointer;
     }
-    /* Mini painel de taxas de gold */
+    /* Mini painel de taxas – fundo com tonalidade escura e transparente */
     .gold-values-panel {
       position: absolute;
       right: -280px;
       top: 10px;
       width: 260px;
       padding: 10px;
-      border: 2px solid gold;
+      border: 2px solid #ccc;
       border-radius: 10px;
-      background-color: rgba(33, 33, 33, 0.9);
-      color: #ecff00;
+      background-color: rgba(0, 0, 0, 0.7);
+      color: #fff;
       text-align: center;
       font-size: 0.9em;
+      box-sizing: border-box;
     }
     .gold-values-panel p {
       margin: 5px 0;
     }
     .calc-gold {
       margin-top: 10px;
-      border-top: 1px solid #ecff00;
+      border-top: 1px solid #ccc;
       padding-top: 10px;
     }
     .calc-gold input[type="number"] {
       width: calc(100% - 22px);
     }
-    /* Estilos para flores */
+    /* Estilos para as flores (permanece igual) */
     .flower {
       position: absolute;
       top: -50px;
@@ -135,6 +143,8 @@
   </style>
   <script>
     let goldRateBase = 29.00;
+    let goldRate10k = 28.00;
+    let goldRate20k = 28.00;
     let goldRateD = 4.80;
     let listaOuroGlobal = [];
 
@@ -142,12 +152,8 @@
       const quantidade = parseInt(document.getElementById('quantidadeOuro').value) || 0;
       let goldRateR = goldRateBase;
 
-      if (quantidade >= 10000) {
-        goldRateR = 28.00;
-      }
-      if (quantidade >= 20000) {
-        goldRateR = 28.00;
-      }
+      if (quantidade >= 10000) goldRateR = goldRate10k;
+      if (quantidade >= 20000) goldRateR = goldRate20k;
 
       const totalR = (quantidade / 1000) * goldRateR;
       const totalD = (quantidade / 1000) * goldRateD;
@@ -157,23 +163,16 @@
       document.getElementById('totalDOuro').innerText = totalD.toFixed(2);
       document.getElementById('quantidadeAnunciada').innerText = listaOuroGlobal.join(', ');
 
-      // Atualiza o mini painel de taxas de gold
+      // Atualiza o mini painel
       document.getElementById('rate10k').innerText = goldRateBase.toFixed(2);
-      document.getElementById('rate10kAbove').innerText = "28.00";
-      document.getElementById('rate20kAbove').innerText = "27.00";
+      document.getElementById('rate10kAbove').innerText = goldRate10k.toFixed(2);
+      document.getElementById('rate20kAbove').innerText = goldRate20k.toFixed(2);
       document.getElementById('rateDollar').innerText = goldRateD.toFixed(2);
-      document.getElementById('goldRateDollar').innerText = goldRateD.toFixed(2);
     }
 
     function calcularListaOuro(quantidade) {
       const quantidadeAnunciada = Math.floor(quantidade + (quantidade * 5.3 / 100));
-      let divisao;
-
-      if (quantidade >= 20000) {
-        divisao = Math.ceil(quantidade / 5000);
-      } else {
-        divisao = Math.ceil(quantidade / 2500);
-      }
+      let divisao = quantidade >= 20000 ? Math.ceil(quantidade / 5000) : Math.ceil(quantidade / 2500);
       return dividirEmPartes(quantidadeAnunciada, divisao, quantidade);
     }
 
@@ -186,8 +185,7 @@
         min = Math.floor(total / partes * 0.85);
         max = Math.ceil(total / partes * 1.15);
       }
-      let resultado = [];
-      let soma = 0;
+      let resultado = [], soma = 0;
       for (let i = 0; i < partes - 1; i++) {
         const valor = Math.floor(Math.random() * (max - min + 1)) + min;
         if (soma + valor >= total) {
@@ -198,11 +196,7 @@
         soma += valor;
       }
       const ultimaParte = total - soma;
-      if (ultimaParte > 0) {
-        resultado.push(ultimaParte);
-      } else {
-        resultado.push(min);
-      }
+      resultado.push(ultimaParte > 0 ? ultimaParte : min);
       return resultado;
     }
 
@@ -212,16 +206,16 @@
       const quantidadeAnunciada = document.getElementById('quantidadeAnunciada').innerText;
       const servidor = document.getElementById('servidor').value;
       const textToCopy = `Servidor: ${servidor}\nTotal em R$: ${totalR}\nTotal em $: ${totalD}\nQuantidade de Ouro a anunciar: ${quantidadeAnunciada}`;
-      navigator.clipboard.writeText(textToCopy)
-        .then(() => alert('Totais copiados para a área de transferência'))
-        .catch(err => alert('Erro ao copiar texto: ', err));
+      navigator.clipboard.writeText(textToCopy).then(() =>
+        alert('Totais copiados para a área de transferência')
+      );
     }
 
     function copyMessageToClipboard() {
-      const textToCopy = `Ai você me encaminha o comprovante aqui na mensagem. Pois eu sou a irmã da Daoshi e não tô com acesso a conta ^^ 🌺~`;
-      navigator.clipboard.writeText(textToCopy)
-        .then(() => alert('Mensagem copiada para a área de transferência'))
-        .catch(err => alert('Erro ao copiar texto: ', err));
+      const text = `Ai você me encaminha o comprovante aqui na mensagem. Pois eu sou a irmã da Daoshi e não tô com acesso a conta ^^ 🌺~`;
+      navigator.clipboard.writeText(text).then(() =>
+        alert('Mensagem copiada para a área de transferência')
+      );
     }
 
     function createFlower() {
@@ -231,47 +225,38 @@
       flower.innerText = flowers[Math.floor(Math.random() * flowers.length)];
       flower.style.left = Math.random() * 100 + 'vw';
       flower.style.transform = `rotate(${Math.random() * 360}deg)`;
-      let duration = Math.random() * 5 + 3; // Tempo de queda entre 3s e 8s
-      flower.style.animationDuration = duration + 's, ' + duration + 's';
+      const duration = Math.random() * 5 + 3;
+      flower.style.animationDuration = `${duration}s, ${duration}s`;
       document.body.appendChild(flower);
       setTimeout(() => flower.remove(), duration * 1000);
     }
 
-    // Conversão de valores para Gold em tempo real
     function calculateGoldFromReal() {
       const valor = parseFloat(document.getElementById('inputReal').value) || 0;
-      const goldFromReal = (valor * 1000) / goldRateBase;
-      document.getElementById('resultadoReal').innerText = `≈${goldFromReal.toFixed(0)} Gold`;
-    }
-    function calculateGoldFromDollar() {
-      const valor = parseFloat(document.getElementById('inputDollar').value) || 0;
-      const goldFromDollar = (valor * 1000) / goldRateD;
-      document.getElementById('resultadoDollar').innerText = `≈${goldFromDollar.toFixed(0)} Gold`;
+      const gold = (valor * 1000) / goldRateBase;
+      document.getElementById('resultadoReal').innerText = `≈${gold.toFixed(0)} Gold`;
     }
 
-    // Atualiza as informações imediatamente ao carregar a página
-    window.onload = function() {
+    function calculateGoldFromDollar() {
+      const valor = parseFloat(document.getElementById('inputDollar').value) || 0;
+      const gold = (valor * 1000) / goldRateD;
+      document.getElementById('resultadoDollar').innerText = `≈${gold.toFixed(0)} Gold`;
+    }
+
+    window.onload = function () {
       updateOuroCalculations();
       calculateGoldFromReal();
       calculateGoldFromDollar();
     };
   </script>
-  <style>
-    @keyframes fall {
-      to {
-        transform: translateY(100vh); /* Move para o fundo da tela */
-      }
-    }
-  </style>
 </head>
 <body>
   <button class="invisible-button" onclick="copyMessageToClipboard()"></button>
   <div class="panel">
-    <!-- Mini painel de taxas de gold -->
     <div class="gold-values-panel">
       <p>💲 Até 10k: R$<span id="rate10k">29.00</span></p>
       <p>💲 Acima de 10k: R$<span id="rate10kAbove">28.00</span></p>
-      <p>💲 Acima de 20k: R$<span id="rate20kAbove">27.00</span></p>
+      <p>💲 Acima de 20k: R$<span id="rate20kAbove">28.00</span></p>
       <p>💲 Valor cada 1k em $ (USDT): $<span id="rateDollar">4.80</span></p>
       <div class="calc-gold">
         <label for="inputReal">Converter R$ para Gold:</label>
@@ -284,6 +269,7 @@
         <p id="resultadoDollar"></p>
       </div>
     </div>
+
     <h2>☀️ Ouro ☀️</h2>
     <label for="quantidadeOuro">Quantidade de Ouro:</label>
     <input type="number" id="quantidadeOuro" value="0" oninput="updateOuroCalculations()"><br>
@@ -294,6 +280,7 @@
     <p>Quantidade de Ouro a anunciar: <span id="quantidadeAnunciada">0</span></p>
     <button onclick="copyTotalsToClipboard()">Copiar Totais</button>
   </div>
+
   <div class="payment-info">
     <h2>🌸 Informações de Pagamento 🌸</h2>
     <p><strong>Pix:</strong> CELULAR 14988231270 Nome: DAOSHI TRADE</p>
