@@ -58,6 +58,15 @@
       border-radius: 5px;
       font-family: Arial, sans-serif;
     }
+    /* Remove as setas do input number */
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    input[type="number"] {
+      -moz-appearance: textfield;
+    }
     label {
       font-weight: bold;
       margin-top: 10px;
@@ -243,10 +252,23 @@
       document.getElementById('resultadoDollar').innerText = `≈${gold.toFixed(0)} Gold`;
     }
 
+    // Função para limpar o campo quando clicado
+    function clearInputOnClick(inputId) {
+      const input = document.getElementById(inputId);
+      input.addEventListener('focus', function() {
+        if (this.value === '0') {
+          this.value = '';
+        }
+      });
+    }
+
     window.onload = function () {
       updateOuroCalculations();
       calculateGoldFromReal();
       calculateGoldFromDollar();
+      clearInputOnClick('quantidadeOuro');
+      clearInputOnClick('inputReal');
+      clearInputOnClick('inputDollar');
     };
   </script>
 </head>
@@ -260,12 +282,12 @@
       <p>💲 Valor cada 1k em $ (USDT): $<span id="rateDollar">4.80</span></p>
       <div class="calc-gold">
         <label for="inputReal">Converter R$ para Gold:</label>
-        <input type="number" id="inputReal" placeholder="Digite valor em R$" oninput="calculateGoldFromReal()">
+        <input type="number" id="inputReal" placeholder="Digite valor em R$" oninput="calculateGoldFromReal()" value="0">
         <p id="resultadoReal"></p>
       </div>
       <div class="calc-gold">
         <label for="inputDollar">Converter USDT para Gold:</label>
-        <input type="number" id="inputDollar" placeholder="Digite valor em USDT" oninput="calculateGoldFromDollar()">
+        <input type="number" id="inputDollar" placeholder="Digite valor em USDT" oninput="calculateGoldFromDollar()" value="0">
         <p id="resultadoDollar"></p>
       </div>
     </div>
