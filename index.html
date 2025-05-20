@@ -102,7 +102,7 @@
     /* Mini painel de taxas – fundo com tonalidade escura e transparente */
     .gold-values-panel {
       position: absolute;
-      right: -280px;
+      right: -280px; /* Ajuste conforme necessário para não sobrepor */
       top: 10px;
       width: 260px;
       padding: 10px;
@@ -153,7 +153,8 @@
   <script>
     let goldRateBase = 29.00;
     let goldRate10k = 28.00;
-    let goldRate20k = 28.00;
+    let goldRate20k = 27.00; // Alterado para 27R$
+    let goldRate30k = 26.00; // Nova taxa para 30k+
     let goldRateD = 4.50;
     let listaOuroGlobal = [];
 
@@ -161,8 +162,13 @@
       const quantidade = parseInt(document.getElementById('quantidadeOuro').value) || 0;
       let goldRateR = goldRateBase;
 
-      if (quantidade >= 10000) goldRateR = goldRate10k;
-      if (quantidade >= 20000) goldRateR = goldRate20k;
+      if (quantidade >= 30000) { // Verifica 30k+ primeiro
+        goldRateR = goldRate30k;
+      } else if (quantidade >= 20000) { // Depois 20k+
+        goldRateR = goldRate20k;
+      } else if (quantidade >= 10000) { // Por último 10k+
+        goldRateR = goldRate10k;
+      }
 
       const totalR = (quantidade / 1000) * goldRateR;
       const totalD = (quantidade / 1000) * goldRateD;
@@ -176,18 +182,20 @@
       document.getElementById('rate10k').innerText = goldRateBase.toFixed(2);
       document.getElementById('rate10kAbove').innerText = goldRate10k.toFixed(2);
       document.getElementById('rate20kAbove').innerText = goldRate20k.toFixed(2);
+      document.getElementById('rate30kAbove').innerText = goldRate30k.toFixed(2); // Adicionado para mostrar a taxa de 30k+
       document.getElementById('rateDollar').innerText = goldRateD.toFixed(2);
     }
 
     function calcularListaOuro(quantidade) {
       const quantidadeAnunciada = Math.floor(quantidade + (quantidade * 5.3 / 100));
-      let divisao = quantidade >= 20000 ? Math.ceil(quantidade / 5000) : Math.ceil(quantidade / 2500);
+      let divisao = quantidade >= 20000 ? Math.ceil(quantidade / 5000) : Math.ceil(quantidade / 2500); // A lógica de divisão pode ser ajustada se necessário para 30k+
       return dividirEmPartes(quantidadeAnunciada, divisao, quantidade);
     }
 
     function dividirEmPartes(total, partes, quantidade) {
       let min, max;
-      if (quantidade >= 20000) {
+      // A lógica de min/max pode ser ajustada se necessário para 30k+
+      if (quantidade >= 20000) { // Esta condição agora cobre 20k+ e 30k+
         min = Math.floor(total / partes * 0.9);
         max = Math.ceil(total / partes * 1.1);
       } else {
@@ -199,14 +207,57 @@
         const valor = Math.floor(Math.random() * (max - min + 1)) + min;
         if (soma + valor >= total) {
           resultado.push(total - soma);
-          return resultado;
+          soma = total; // Garante que a soma seja o total para a próxima condição
+          break; // Sai do loop pois já atingiu o total
         }
         resultado.push(valor);
         soma += valor;
       }
-      const ultimaParte = total - soma;
-      resultado.push(ultimaParte > 0 ? ultimaParte : min);
-      return resultado;
+      // Se a soma ainda não atingiu o total, adiciona a diferença
+      if (soma < total) {
+         const ultimaParte = total - soma;
+         resultado.push(ultimaParte > 0 ? ultimaParte : min); // Garante que a última parte não seja zero ou negativa
+      } else if (resultado.length < partes && partes > 0 && total > 0 && resultado.reduce((a, b) => a + b, 0) < total) {
+        // Caso o loop termine antes e a soma não seja total, adiciona o restante
+        // Isso pode acontecer se a primeira parte aleatória já for muito próxima do total.
+        const restante = total - resultado.reduce((a, b) => a + b, 0);
+        if (restante > 0) resultado.push(restante);
+      }
+      // Garante que sempre haja 'partes' elementos se possível, preenchendo com min se necessário
+      // e ajustando o último para bater o total.
+      while (resultado.length < partes && partes > 0) {
+          resultado.push(min);
+      }
+      if (resultado.length > partes && partes > 0) {
+          resultado = resultado.slice(0, partes);
+      }
+      // Reajusta a soma e a última parte para bater o total exato.
+      if (partes > 0) {
+        soma = 0;
+        for (let i = 0; i < partes -1; i++) {
+            soma += resultado[i];
+        }
+        if (total - soma > 0) {
+            resultado[partes-1] = total - soma;
+        } else if (partes === 1 && total > 0) {
+             resultado[0] = total; // Caso de uma única parte
+        } else if (total > 0 && resultado.length > 0) {
+            // Se a última parte calculada for negativa ou zero, tenta recalcular de forma simples
+            // Esta parte pode precisar de uma lógica mais robusta para garantir a distribuição ideal.
+            let somaParcial = 0;
+            for(let i = 0; i < resultado.length -1; i++) somaParcial += resultado[i];
+            resultado[resultado.length -1] = total - somaParcial > 0 ? total - somaParcial : min;
+            // Re-verificar a soma total e ajustar se necessário
+            let currentSum = resultado.reduce((acc, val) => acc + val, 0);
+            if (currentSum !== total && resultado.length > 0) {
+                let diff = total - currentSum;
+                resultado[resultado.length - 1] += diff; // Adiciona a diferença à última parte
+            }
+        }
+
+      }
+
+      return resultado.filter(val => val > 0); // Filtra valores zero ou negativos que possam surgir
     }
 
     function copyTotalsToClipboard() {
@@ -242,7 +293,15 @@
 
     function calculateGoldFromReal() {
       const valor = parseFloat(document.getElementById('inputReal').value) || 0;
-      const gold = (valor * 1000) / goldRateBase;
+      // Para a conversão R$ -> Gold, você pode decidir qual taxa usar.
+      // Usando a taxa base por padrão ou a melhor taxa possível?
+      // Aqui estou usando a taxa base.
+      let rateForConversion = goldRateBase;
+      if (valor / goldRateBase * 1000 >= 30000) rateForConversion = goldRate30k;
+      else if (valor / goldRateBase * 1000 >= 20000) rateForConversion = goldRate20k;
+      else if (valor / goldRateBase * 1000 >= 10000) rateForConversion = goldRate10k;
+
+      const gold = (valor * 1000) / rateForConversion; // Ajustado para usar a taxa mais vantajosa
       document.getElementById('resultadoReal').innerText = `≈${gold.toFixed(0)} Gold`;
     }
 
@@ -260,15 +319,22 @@
           this.value = '';
         }
       });
+      input.addEventListener('blur', function() { // Opcional: volta para '0' se estiver vazio
+        if (this.value === '') {
+          this.value = '0';
+        }
+      });
     }
 
     window.onload = function () {
       updateOuroCalculations();
-      calculateGoldFromReal();
-      calculateGoldFromDollar();
+      calculateGoldFromReal(); // Calcula inicialmente
+      calculateGoldFromDollar(); // Calcula inicialmente
       clearInputOnClick('quantidadeOuro');
       clearInputOnClick('inputReal');
       clearInputOnClick('inputDollar');
+      // Cria flores em intervalos aleatórios
+      // setInterval(createFlower, Math.random() * 2000 + 1000); // Descomente se quiser as flores caindo
     };
   </script>
 </head>
@@ -278,17 +344,18 @@
     <div class="gold-values-panel">
       <p>💲 Até 10k: R$<span id="rate10k">29.00</span></p>
       <p>💲 Acima de 10k: R$<span id="rate10kAbove">28.00</span></p>
-      <p>💲 Acima de 20k: R$<span id="rate20kAbove">28.00</span></p>
-      <p>💲 Valor cada 1k em $ (USDT): $<span id="rateDollar">4.80</span></p>
+      <p>💲 Acima de 20k: R$<span id="rate20kAbove">27.00</span></p>
+      <p>💲 Acima de 30k: R$<span id="rate30kAbove">26.00</span></p>
+      <p>💲 Valor cada 1k em $ (USDT): $<span id="rateDollar">4.50</span></p>
       <div class="calc-gold">
         <label for="inputReal">Converter R$ para Gold:</label>
         <input type="number" id="inputReal" placeholder="Digite valor em R$" oninput="calculateGoldFromReal()" value="0">
-        <p id="resultadoReal"></p>
+        <p id="resultadoReal">≈0 Gold</p>
       </div>
       <div class="calc-gold">
         <label for="inputDollar">Converter USDT para Gold:</label>
         <input type="number" id="inputDollar" placeholder="Digite valor em USDT" oninput="calculateGoldFromDollar()" value="0">
-        <p id="resultadoDollar"></p>
+        <p id="resultadoDollar">≈0 Gold</p>
       </div>
     </div>
 
